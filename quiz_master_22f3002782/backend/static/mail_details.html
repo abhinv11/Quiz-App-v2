@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monthly Quiz Report - {{ data.name }}</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 16px;
+        }
+        .content {
+            padding: 30px;
+        }
+        .user-info {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        .user-info h2 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .section {
+            margin: 30px 0;
+        }
+        .section h3 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .quiz-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .quiz-table th,
+        .quiz-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .quiz-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: #333;
+        }
+        .quiz-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .quiz-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .score-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        .score-excellent {
+            background-color: #28a745;
+        }
+        .score-good {
+            background-color: #17a2b8;
+        }
+        .score-average {
+            background-color: #ffc107;
+            color: #333;
+        }
+        .score-poor {
+            background-color: #dc3545;
+        }
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border-left: 3px solid #667eea;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 0;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 5px 0 0 0;
+        }
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px 30px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 Monthly Quiz Report</h1>
+            <p>Your Performance Summary</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- User Information -->
+            <div class="user-info">
+                <h2>Hello, {{ data.name }}!</h2>
+                <p><strong>User ID:</strong> {{ data.id }}</p>
+                <p><strong>Email:</strong> {{ data.email }}</p>
+            </div>
+
+            <!-- Quiz Performance Section -->
+            <div class="section">
+                {% if data.report and data.report|length > 0 %}
+                    <h3>🎯 Your Quiz Performance</h3>
+                    
+                    <!-- Summary Stats -->
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <p class="stat-number">{{ data.report|length }}</p>
+                            <p class="stat-label">Total Quizzes</p>
+                        </div>
+                        <div class="stat-item">
+                            <p class="stat-number">
+                                {% set total_scored = data.report | sum(attribute='total_scored') %}
+                                {% set total_possible = data.report | sum(attribute='total_possible') %}
+                                {% if total_possible > 0 %}
+                                    {{ "%.1f"|format((total_scored / total_possible) * 100) }}%
+                                {% else %}
+                                    0%
+                                {% endif %}
+                            </p>
+                            <p class="stat-label">Average Score</p>
+                        </div>
+                        <div class="stat-item">
+                            <p class="stat-number">
+                                {% set avg_time = (data.report | sum(attribute='completion_time')) / data.report|length %}
+                                {{ "%.1f"|format(avg_time) }}
+                            </p>
+                            <p class="stat-label">Avg Time (min)</p>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Quiz Results -->
+                    <table class="quiz-table">
+                        <thead>
+                            <tr>
+                                <th>Quiz ID</th>
+                                <th>Score</th>
+                                <th>Percentage</th>
+                                <th>Time (minutes)</th>
+                                <th>Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for quiz_result in data.report %}
+                            <tr>
+                                <td>Quiz #{{ quiz_result.quiz_id }}</td>
+                                <td>{{ quiz_result.total_scored }} / {{ quiz_result.total_possible }}</td>
+                                <td>
+                                    {% if quiz_result.total_possible > 0 %}
+                                        {% set percentage = (quiz_result.total_scored / quiz_result.total_possible) * 100 %}
+                                        {{ "%.1f"|format(percentage) }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </td>
+                                <td>{{ quiz_result.completion_time }}</td>
+                                <td>
+                                    {% if quiz_result.total_possible > 0 %}
+                                        {% set percentage = (quiz_result.total_scored / quiz_result.total_possible) * 100 %}
+                                        {% if percentage >= 90 %}
+                                            <span class="score-badge score-excellent">Excellent</span>
+                                        {% elif percentage >= 75 %}
+                                            <span class="score-badge score-good">Good</span>
+                                        {% elif percentage >= 60 %}
+                                            <span class="score-badge score-average">Average</span>
+                                        {% else %}
+                                            <span class="score-badge score-poor">Needs Improvement</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="score-badge score-poor">No Score</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <!-- Performance Insights -->
+                    <div class="section">
+                        <h3>💡 Performance Insights</h3>
+                        <ul>
+                            {% set total_scored = data.report | sum(attribute='total_scored') %}
+                            {% set total_possible = data.report | sum(attribute='total_possible') %}
+                            {% if total_possible > 0 %}
+                                {% set overall_percentage = (total_scored / total_possible) * 100 %}
+                                {% if overall_percentage >= 90 %}
+                                    <li>🎉 Outstanding performance! You're in the top tier of quiz takers.</li>
+                                    <li>Keep up the excellent work and consider helping other students.</li>
+                                {% elif overall_percentage >= 75 %}
+                                    <li>👍 Great job! You have a solid understanding of the material.</li>
+                                    <li>Focus on areas where you scored lower to reach excellence.</li>
+                                {% elif overall_percentage >= 60 %}
+                                    <li>📚 Good effort! There's room for improvement in some areas.</li>
+                                    <li>Consider reviewing topics where you scored below 75%.</li>
+                                {% else %}
+                                    <li>📖 Don't worry! Learning is a process, and you're making progress.</li>
+                                    <li>Focus on understanding concepts rather than memorization.</li>
+                                    <li>Consider reaching out for additional help or study resources.</li>
+                                {% endif %}
+                            {% endif %}
+                            <li>🕒 Your average completion time: {{ "%.1f"|format((data.report | sum(attribute='completion_time')) / data.report|length) }} minutes</li>
+                        </ul>
+                    </div>
+
+                {% else %}
+                    <div class="no-data">
+                        <h3>📝 No Quiz Activity</h3>
+                        <p>You haven't taken any quizzes this month yet.</p>
+                        <p>Start exploring available quizzes to track your progress!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>This report was automatically generated by QuizApp</p>
+            <p>Keep learning and improving! 🚀</p>
+        </div>
+    </div>
+</body>
+</html>

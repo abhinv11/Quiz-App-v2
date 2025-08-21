@@ -1,0 +1,143 @@
+I. Authentication & Authorization Endpoints
+
+* POST /api/register
+    * Description: Register a new user (potentially default role 'student').
+    * Request Body: {"email": "...", "password": "...", "name": "...", "dob": "YYYY-MM-DD", "qualification": "..."}
+* POST /api/login
+    * Description: Log in a user.
+    * Request Body: {"email": "...", "password": "..."}
+* POST /api/logout
+    * Description: Log out the current user.
+* GET /api/me
+    * Description: Get the current logged-in user's profile.
+
+II. Administrator Endpoints
+
+A. User Management
+* GET /api/admin/users
+    * Description: Retrieve a list of all users.
+    * Query Params: ?role=<role_name>, ?search=<keyword>
+* GET /api/admin/users/{user_id}
+    * Description: Retrieve details of a specific user.
+* PUT /api/admin/users/{user_id}
+    * Description: Update a user's information (e.g., active status, roles).
+    * Request Body: {"email": "...", "active": true, "roles": ["admin", "student"]}
+* DELETE /api/admin/users/{user_id}
+    * Description: Delete a user.
+* POST /api/admin/users/{user_id}/roles
+    * Description: Assign or update roles for a specific user.
+    * Request Body: {"role_ids": [1, 2]}
+* GET /api/admin/roles
+    * Description: Get all available roles.
+
+B. Subject Management
+* POST /api/admin/subjects
+    * Description: Create a new subject.
+    * Request Body: {"name": "...", "description": "..."}
+* GET /api/admin/subjects
+    * Description: Get a list of all subjects.
+* GET /api/admin/subjects/{subject_id}
+    * Description: Get details of a specific subject.
+* PUT /api/admin/subjects/{subject_id}
+    * Description: Update a subject.
+    * Request Body: {"name": "...", "description": "..."}
+* DELETE /api/admin/subjects/{subject_id}
+    * Description: Delete a subject.
+
+C. Chapter Management
+* POST /api/admin/subjects/{subject_id}/chapters
+    * Description: Create a new chapter for a given subject.
+    * Request Body: {"name": "...", "description": "..."}
+* GET /api/admin/subjects/{subject_id}/chapters
+    * Description: Get all chapters for a specific subject.
+* GET /api/admin/chapters/{chapter_id}
+    * Description: Get details of a specific chapter.
+* PUT /api/admin/chapters/{chapter_id}
+    * Description: Update a chapter.
+    * Request Body: {"name": "...", "description": "..."}
+* DELETE /api/admin/chapters/{chapter_id}
+    * Description: Delete a chapter.
+
+D. Quiz Management
+* POST /api/admin/chapters/{chapter_id}/quizzes
+    * Description: Create a new quiz for a given chapter.
+    * Request Body: {"title": "...", "description": "...", "time_duration": ..., "remarks": "...", "is_published": false}
+* GET /api/admin/chapters/{chapter_id}/quizzes
+    * Description: Get all quizzes for a specific chapter.
+* GET /api/admin/quizzes
+    * Description: Get a list of all quizzes.
+    * Query Params: ?subject_id=<id>, ?chapter_id=<id>, ?published=true/false
+* GET /api/admin/quizzes/{quiz_id}
+    * Description: Get details of a specific quiz (including its questions).
+* PUT /api/admin/quizzes/{quiz_id}
+    * Description: Update a quiz's information.
+    * Request Body: {"title": "...", "time_duration": ..., "is_published": true, ...}
+* PATCH /api/admin/quizzes/{quiz_id}/publish
+    * Description: Publish/unpublish a quiz.
+    * Request Body: {"is_published": true/false}
+* DELETE /api/admin/quizzes/{quiz_id}
+    * Description: Delete a quiz.
+
+E. Question Management
+* POST /api/admin/quizzes/{quiz_id}/questions
+    * Description: Create a new question for a given quiz.
+    * Request Body: {"question_statement": "...", "question_type": "MCQ", "points": 1, "option1": "...", "option2": "...", "correct_answer": "..."}
+* GET /api/admin/quizzes/{quiz_id}/questions
+    * Description: Get all questions for a specific quiz.
+* GET /api/admin/questions/{question_id}
+    * Description: Get details of a specific question.
+* PUT /api/admin/questions/{question_id}
+    * Description: Update a question.
+    * Request Body: {"question_statement": "...", "correct_answer": "..."}
+* DELETE /api/admin/questions/{question_id}
+    * Description: Delete a question.
+
+F. Score/Result Management (Admin View)
+* GET /api/admin/scores
+    * Description: Get all quiz scores (for all users).
+    * Query Params: ?user_id=<id>, ?quiz_id=<id>, ?subject_id=<id>
+* GET /api/admin/scores/{score_id}
+    * Description: Get details of a specific quiz attempt (including user answers).
+* GET /api/admin/quizzes/{quiz_id}/scores
+    * Description: Get all scores for a specific quiz.
+* GET /api/admin/users/{user_id}/scores
+    * Description: Get all scores for a specific user.
+* GET /api/admin/analytics/quiz/{quiz_id}
+    * Description: Get analytics for a specific quiz.
+* GET /api/admin/analytics/subject/{subject_id}
+    * Description: Get analytics for a specific subject.
+* GET /api/admin/analytics/user/{user_id}
+    * Description: Get analytics for a specific user's performance.
+
+III. User Endpoints
+
+A. User Profile
+* GET /api/users/me/profile
+    * Description: Get the current student's profile details.
+* PUT /api/users/me/profile
+    * Description: Update the current student's profile.
+    * Request Body: {"name": "...", "dob": "YYYY-MM-DD", "qualification": "..."}
+
+B. Quiz Browsing & Taking
+* GET /api/subjects
+    * Description: Get a list of all available subjects.
+* GET /api/subjects/{subject_id}/chapters
+    * Description: Get chapters for a specific subject.
+* GET /api/chapters/{chapter_id}/quizzes
+    * Description: Get all published quizzes for a specific chapter.
+* GET /api/quizzes/{quiz_id}
+    * Description: Get a specific quiz's details before starting it.
+* POST /api/quizzes/{quiz_id}/start
+    * Description: Start a quiz.
+* POST /api/quizzes/{quiz_id}/submit
+    * Description: Submit quiz answers.
+    * Request Body: {"answers": [{"question_id": ..., "user_answer": "...", "time_taken_for_question": ...}]}
+
+C. Score & Result Viewing (User View)
+* GET /api/users/me/scores
+    * Description: Get all quiz attempts (scores) for the current user.
+    * Query Params: ?subject_id=<id>, ?quiz_id=<id>
+* GET /api/scores/{score_id}
+    * Description: Get details of a specific quiz attempt by the current user.
+* GET /api/users/me/analytics/performance
+    * Description: Get the current user's overall performance analytics.
